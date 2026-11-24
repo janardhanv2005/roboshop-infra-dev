@@ -7,4 +7,4 @@ cd /home/ec2-user
 git clone https://github.com/janardhanv2005/roboshop-ansible-v3.git
 cd roboshop-ansible-v3
 git pull # when you are running for 2nd time, if there is any change in repo we can pull the changes
-ansible-playbook -e component=$component -e env=$environment main.yaml
+ansible-playbook -e component=$component -e env=$envirnonment main.yaml
