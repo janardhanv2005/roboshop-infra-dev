@@ -7,7 +7,7 @@ resource "aws_instance" "catalogue" {
   tags = merge (
     local.common_tags,
     {
-        Name="${local.common_name}-catalogues"
+        Name="${local.common_name}-catalogue"
     }
   )
 }
@@ -35,4 +35,25 @@ resource "terraform_data" "bootstrap" {
       "sudo sh /tmp/bootstrap.sh catalogue ${var.environment} ${var.app_version}"
     ]
   }
+}
+
+action "aws_ec2_instance_state" "catalogue" {
+    instance_id = aws_instance.catalogue.id
+    state = "stopped"
+    depends_on = [terraform.data.bootstrap]
+
+}
+
+resource "aws_ami_from_instance" "catalogue" {
+  name               = "${local.common_name}-catalogue-${var.app_version}-${aws_instance.catalogue.id}"
+  source_instance_id = aws_instance.catalogue.id
+  
+  depends_on = aws_ec2_instance_state.catalogue
+
+  tags = merge (
+    local.common_tags,
+    {
+        Name = "${local.common_name}-catalogue-${var.app_version}-${aws_instance.catalogue.id}"
+    }
+  )
 }
