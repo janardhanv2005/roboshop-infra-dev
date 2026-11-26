@@ -21,7 +21,7 @@ resource "terraform_data" "bootstrap" {
     type        = "ssh"
     user        = "ec2-user"
     password = "DevOps321"
-    host        = aws_instance.catalgoue.private_ip
+    host        = aws_instance.catalogue.private_ip
   }
 
   provisioner "file" {
