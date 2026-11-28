@@ -4,7 +4,7 @@ locals {
     private_subnet_id = split(",", data.aws_ssm_parameter.private_subnet_ids.value)[0]
     private_subnet_ids = split(",", data.aws_ssm_parameter.private_subnet_ids.value)
     common_name = "${var.project}-${var.environment}"
-    vpc_id = data.aws_ssm_parameter.vpc_id
+    vpc_id = data.aws_ssm_parameter.vpc_id.value
     backend_alb_listner_arn = data. aws_ssm_parameter.backend_alb_listner_arn.value
     common_tags = {
         Project = var.project

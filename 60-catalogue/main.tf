@@ -95,7 +95,7 @@ resource "aws_launch_template" "catalogue" {
 
 }
 
-resource "aws_lb_target_group" "cataglogue" {
+resource "aws_lb_target_group" "catalogue" {
   name     = "${local.common_name}-catalogue"
   port     = 8080
   protocol = "HTTP"
@@ -162,7 +162,7 @@ resource "aws_autoscaling_group" "catalogue" {
 resource "aws_autoscaling_policy" "catalgoue" {
     name = "${local.common_name}-catalogue"
     policy_type = "TargetTrackingScaling"
-    autoscaling_group_name = aws_autoscaling_group.catalgoue.name
+    autoscaling_group_name = aws_autoscaling_group.catalogue.name
 
    target_tracking_configuration {
     predefined_metric_specification {
