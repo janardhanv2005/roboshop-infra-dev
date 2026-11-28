@@ -159,7 +159,7 @@ resource "aws_autoscaling_group" "catalogue" {
   }
 }
 
-resource "aws_autoscaling_policy" "catalgoue" {
+resource "aws_autoscaling_policy" "catalogue" {
     name = "${local.common_name}-catalogue"
     policy_type = "TargetTrackingScaling"
     autoscaling_group_name = aws_autoscaling_group.catalogue.name
