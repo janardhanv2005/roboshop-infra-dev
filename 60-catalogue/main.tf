@@ -95,3 +95,98 @@ resource "aws_launch_template" "catalogue" {
 
 }
 
+resource "aws_lb_target_group" "cataglogue" {
+  name     = "${local.common_name}-catalogue"
+  port     = 8080
+  protocol = "HTTP"
+  vpc_id   = local.vpc_id
+  deregistration_delay = 10
+
+  health_check {
+    healthy_threshold = 2
+    interval = 10
+    matcher = "200-299"
+    path = "/health"
+    protocol = "http"
+    timeout = 5
+    unhealthy_threshold = 2
+  }
+}
+
+
+resource "aws_autoscaling_group" "catalogue" {
+  name                      = "${local.common_name}-catalogue"
+  max_size                  = 5
+  min_size                  = 1
+  health_check_grace_period = 120
+  health_check_type         = "ELB"
+  desired_capacity          = 2
+  force_delete              = true
+ 
+ launch_template {
+    id = aws_launch_template.catalgoue.id
+    version = "$Latest"
+ }
+  vpc_zone_identifier       = local.private_subnet_ids
+
+  target_group_arns  = [aws_lb_target_group.catalogue.arn]
+
+  instance_refresh{
+    strategy = "Rolling"
+    preferences {
+      min_healthy_percentage = 50
+    }
+    triggers = ["launch_template"]
+  }
+
+  dynamic "tag" {
+    for_each = merge(
+        local.common_tags,
+        {
+            Name = "${local.common_name}-catalogue"
+        }
+    )
+
+    content {
+        key                 = tag.key
+        value               = tag.value
+        propagate_at_launch = true
+    }
+  }
+
+  timeouts {
+    delete = "15m"
+  }
+}
+
+resource "aws_autoscaling_policy" "catalgoue" {
+    name = "${local.common_name}-catalogue"
+    policy_type = "TargetTrackingScaling"
+    autoscaling_group_name = aws_autoscaling_group.catalgoue.name
+
+   target_tracking_configuration {
+    predefined_metric_specification {
+      predefined_metric_type = "ASGAverageCPUUtilization"
+    }
+
+    target_value = 75.0
+   }
+   cooldown = 120
+}
+
+
+resource "aws_lb_listener_rule" "catalogue" {
+  listener_arn = local.backend_alb_listner_arn
+  priority     = 10
+
+  action {
+    type = "forward"
+    target_group_arn = aws_lb_target_group.catalogue.arn
+  }
+
+  condition {
+    host_header {
+        values = ["catalogue.backend-alb-${var.environment}=${var.domain_name}"]
+    }
+  }
+}
