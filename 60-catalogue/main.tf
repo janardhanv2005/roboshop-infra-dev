@@ -171,7 +171,6 @@ resource "aws_autoscaling_policy" "catalgoue" {
 
     target_value = 75.0
    }
-   cooldown = 120
 }
 
 
